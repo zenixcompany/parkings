@@ -67,9 +67,40 @@ def send_parking(chat_id, lat, lon):
           parse_mode='Markdown'
         )
 
-      bot.send_location(chat_id, parking['lat'], parking['lon'])
+      markup = telebot.types.InlineKeyboardMarkup()
+      markup.add(
+        telebot.types.InlineKeyboardButton('Повідомити, якщо зайнято', callback_data='subscribe')
+      )
+
+      bot.send_location(chat_id, parking['lat'], parking['lon'], reply_markup=markup)
   except Exception as e:
     print(e)
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_inline(call):
+  try:
+    if call.message:
+      markup = telebot.types.InlineKeyboardMarkup()
+
+      if call.data == 'subscribe':
+        markup.add(
+          telebot.types.InlineKeyboardButton('Відмінити', callback_data='unsubscribe')
+        )
+      elif call.data == 'unsubscribe':
+        markup.add(
+          telebot.types.InlineKeyboardButton('Повідомити, якщо зайнято', callback_data='subscribe')
+        )
+
+      bot.edit_message_reply_markup(
+        chat_id=call.message.chat.id,
+        message_id=call.message.message_id,
+        reply_markup=markup
+      )
+
+      bot.answer_callback_query(callback_query_id=call.id, show_alert=False, text="Готово")
+  except Exception as e:
+    print(repr(e))
 
 
 if __name__ == '__main__':
