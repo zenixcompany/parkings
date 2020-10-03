@@ -3,6 +3,7 @@ import time
 from flask import Flask, request
 from messages import *
 from config import IS_DEPLOYED, TOKEN, WEBHOOK_URL, WEBHOOK_SECRET, OPENCAGE_KEY
+from sql_worker import SQL
 from parking_coords import ParkingCoords
 from opencage.geocoder import OpenCageGeocode
 
@@ -39,21 +40,33 @@ def send_parking(chat_id, lat, lon):
   try:
     parkingCoords = ParkingCoords()
     parkings = parkingCoords.get_5_closest_parking(lat, lon)
+    parking_num = 0
 
     for parking in parkings:
+      parking_num += 1
+
       if (parking['is_camera']):
+        photo = open(f"recognition/images/{parking['street']}.jpg", 'rb')
+
         bot.send_message(
           chat_id,
-          f"Найближча парковка: {parking['street']}\nВільні місця: {parking['spaces_amount']}"
+          f"""
+          *{parking_num}* найближа парковка: _{parking['street']}_
+          \nВільні місця: *{parking['spaces_amount']}*
+          """,
+          parse_mode="Markdown"
         )
-        photo = open(f"recognition/images/{parking['street']}.jpg", 'rb')
         bot.send_photo(chat_id, photo)
       else:
         bot.send_message(
           chat_id,
-          f"Найближча парковка: {parking['street']}\nНа даній парковці поки немає камери"
+          f"""
+          *{parking_num}* найближа парковка: _{parking['street']}_
+          \n*На даній парковці поки немає камери*
+          """,
+          parse_mode='Markdown'
         )
-        
+
       bot.send_location(chat_id, parking['lat'], parking['lon'])
   except Exception as e:
     print(e)
