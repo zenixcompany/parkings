@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+import requests as req
 from cv2 import cv2 as open_cv
 import time
 import yaml
@@ -12,49 +13,75 @@ def main():
 
     street_name = args.name
     camera_link = args.camera
-    url = findCurrentMinute(camera_link)
+    current_frame = findCurrentMinute(camera_link)
 
     db = Database()
 
     with open("recognition/data/" + street_name + ".yml", "r") as data:
         points = yaml.load(data)
         while True:
-            detector = MotionDetector(url, points)
-            start_time = time.time()
-            space_amount = detector.detect_motion(street_name)
-            db.set_spaces_amount(1, space_amount)
-            exec_time = time.time() - start_time
-            time.sleep(63 - exec_time)
-            url = nextUrl(url)
-            print(url)
+            if current_frame is not None:
+                detector = MotionDetector(points)
+                start_time = time.time()
+                space_amount = detector.detect_motion(street_name, current_frame)
+                db.set_spaces_amount(1, space_amount)
+                exec_time = time.time() - start_time
+                time.sleep(63 - exec_time)
+
+            current_frame = findCurrentMinute(camera_link)
 
 def findCurrentMinute(without_id):
     current_timestamp = round(time.time())
     while True:
-        # capture = open_cv.VideoCapture(without_id + str(current_timestamp) + '.mp4')
-        # capture.set(6, open_cv.VideoWriter_fourcc('H', '2', '6', '4'))
-        if (open_cv.VideoCapture(without_id + str(current_timestamp) + '.mp4').isOpened()):
-            print("Opened")
-            return without_id + str(current_timestamp) + '.mp4'
-        print("Aint found")
+        if (req.get(without_id + str(current_timestamp) + '.mp4').status_code != 404):
+            # print("Opened")
+            return_url = without_id + str(current_timestamp) + '.mp4'
+            print(return_url)
+            return getFrame(return_url)
+        # print("Aint found")
         current_timestamp = current_timestamp - 1
 
 
-def nextUrl(currentUrl):
-    id = int(currentUrl.split('_')[1].split('.')[0]) + 62
-    without_id = currentUrl.split('_')[0]
-    if (open_cv.VideoCapture(without_id + "_" + str(id) + '.mp4').isOpened()):
-        print("Default")
-        return without_id + "_" + str(id) + '.mp4'
-    elif (open_cv.VideoCapture(without_id + "_" + str(id - 1) + '.mp4').isOpened()):
-        print("-1")
-        return without_id + "_" + str(id - 1) + '.mp4'
-    elif (open_cv.VideoCapture(without_id + "_" + str(id + 1) + '.mp4').isOpened()):
-        print("+1")
-        return without_id + "_" + str(id + 1) + '.mp4'
+# def nextUrl(currentUrl):
+#     id = int(currentUrl.split('_')[1].split('.')[0]) + 62
+#     without_id = currentUrl.split('_')[0]
+
+#     return_url = ""
+#     if (req.get(without_id + "_" + str(id) + '.mp4').status_code != 404):
+#         print("Default")
+#         return_url = without_id + "_" + str(id) + '.mp4'
+#     elif (req.get(without_id + "_" + str(id - 1) + '.mp4').status_code != 404):
+#         print("-1")
+#         return_url = without_id + "_" + str(id - 1) + '.mp4'
+#     elif (req.get(without_id + "_" + str(id + 1) + '.mp4').status_code != 404):
+#         print("+1")
+#         return_url = without_id + "_" + str(id + 1) + '.mp4'
+#     else:
+#         print("fuck up")
+#         return_url, _ = findCurrentMinute(without_id + "_")
+
+#     return return_url, getFrame(return_url)
+
+def getFrame(url):
+    capture = open_cv.VideoCapture(url)
+    frameAmount = int(capture.get(open_cv.CAP_PROP_FRAME_COUNT))
+    capture.set(open_cv.CAP_PROP_POS_FRAMES, frameAmount / 2)
+
+    if capture.isOpened():
+        # print("IsOpened")
+        result, frame = capture.read()
+        if frame is None:
+            # print("How?")
+            return None
+
+        if not result:
+            return None
+
+        return frame
     else:
-        print("fuck up")
-        return findCurrentMinute(without_id + "_")
+        # print("IsNotOpened")
+        return None
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Start recognition')

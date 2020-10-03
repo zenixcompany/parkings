@@ -7,19 +7,14 @@ class MotionDetector:
     LAPLACIAN = 1.4
     DETECT_DELAY = 1
 
-    def __init__(self, video, coordinates):
-        self.video = video
+    def __init__(self, coordinates):
         self.coordinates_data = coordinates
         self.contours = []
         self.bounds = []
         self.mask = []
 
-    def detect_motion(self, street_name):
+    def detect_motion(self, street_name, frame):
         space_amount = 0
-
-        capture = open_cv.VideoCapture(self.video)
-        frameAmount = int(capture.get(open_cv.CAP_PROP_FRAME_COUNT))
-        capture.set(open_cv.CAP_PROP_POS_FRAMES, frameAmount / 2)
 
         coordinates_data = self.coordinates_data
         for p in coordinates_data:
@@ -46,27 +41,9 @@ class MotionDetector:
 
         statuses = [False] * len(coordinates_data)
 
-        if not capture.isOpened():
-            print("IsNotOpened")
-            return space_amount
-        else:
-            print("IsOpened")
-
-        result, frame = capture.read()
-        if frame is None:
-            print("How?")
-            return space_amount
-
-        if not result:
-            raise CaptureReadError("Error reading video capture on frame %s" % str(frame))
-
-
         blurred = open_cv.GaussianBlur(frame.copy(), (5, 5), 3)
         grayed = open_cv.cvtColor(blurred, open_cv.COLOR_BGR2GRAY)
         new_frame = frame.copy()
-
-        # for index, c in enumerate(coordinates_data):
-        #     statuses[index] = self.__apply(grayed, index, c)
 
         for index, p in enumerate(coordinates_data):
             coordinates = self._coordinates(p)
@@ -76,9 +53,9 @@ class MotionDetector:
 
         open_cv.imwrite("recognition/images/" + street_name + ".jpg", new_frame)
         space_amount = len(list(filter(lambda x: x == True, statuses)))
-        print(space_amount)
-        capture.release()
-        open_cv.destroyAllWindows()
+        # print(space_amount)
+        # capture.release()
+        # open_cv.destroyAllWindows()
         return space_amount
 
     def __apply(self, grayed, index, p):
