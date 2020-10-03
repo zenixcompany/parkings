@@ -41,27 +41,6 @@ def findCurrentMinute(without_id):
         # print("Aint found")
         current_timestamp = current_timestamp - 1
 
-
-# def nextUrl(currentUrl):
-#     id = int(currentUrl.split('_')[1].split('.')[0]) + 62
-#     without_id = currentUrl.split('_')[0]
-
-#     return_url = ""
-#     if (req.get(without_id + "_" + str(id) + '.mp4').status_code != 404):
-#         print("Default")
-#         return_url = without_id + "_" + str(id) + '.mp4'
-#     elif (req.get(without_id + "_" + str(id - 1) + '.mp4').status_code != 404):
-#         print("-1")
-#         return_url = without_id + "_" + str(id - 1) + '.mp4'
-#     elif (req.get(without_id + "_" + str(id + 1) + '.mp4').status_code != 404):
-#         print("+1")
-#         return_url = without_id + "_" + str(id + 1) + '.mp4'
-#     else:
-#         print("fuck up")
-#         return_url, _ = findCurrentMinute(without_id + "_")
-
-#     return return_url, getFrame(return_url)
-
 def getFrame(url):
     capture = open_cv.VideoCapture(url)
     frameAmount = int(capture.get(open_cv.CAP_PROP_FRAME_COUNT))

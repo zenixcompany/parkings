@@ -54,8 +54,6 @@ class MotionDetector:
         open_cv.imwrite("recognition/images/" + street_name + ".jpg", new_frame)
         space_amount = len(list(filter(lambda x: x == True, statuses)))
         # print(space_amount)
-        # capture.release()
-        # open_cv.destroyAllWindows()
         return space_amount
 
     def __apply(self, grayed, index, p):
