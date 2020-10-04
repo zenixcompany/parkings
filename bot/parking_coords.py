@@ -1,18 +1,19 @@
 from math import cos, asin, sqrt
 from sql_worker import SQL
 
+
 class ParkingCoords:
   def __init__(self):
     database = SQL()
-    parkings = database.get_all_parkings()
+    parkings = database.get_parkings()
 
     self.parkings = list(map(lambda parking: {
       'id': parking[0],
       'street': parking[1],
       'spaces_amount': parking[2],
-      'lat': parking[3],
-      'lon': parking[4],
-      'is_camera': parking[5]
+      'lat': float(parking[3]),
+      'lon': float(parking[4]),
+      'camera_url': parking[5]
     }, parkings))
 
 
