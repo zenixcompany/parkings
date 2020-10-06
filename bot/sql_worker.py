@@ -18,19 +18,12 @@ class SQL:
         self.cursor = self.conn.cursor()
 
 
-   # def __del__(self):
-   #     self.conn.close()
-
-
-#   def set_spaces_amount(self, id, spaces_amount):
-#     with self.connection:
-#       query = f'UPDATE parkings SET spaces_amount = ? WHERE id = ?'
-#       self.cursor.execute(query, (spaces_amount, id))
-
-
     def get_parkings(self):
         with self.conn:
             query = f'SELECT * FROM _parkings'
-            self.cursor.execute(query)
+            try:
+                self.cursor.execute(query)
+            except Exception as e:
+                print(e)
 
             return self.cursor.fetchall()
