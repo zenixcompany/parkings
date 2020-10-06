@@ -18,6 +18,7 @@ class SQL:
         self.cursor = self.conn.cursor()
 
 
+
     def get_parkings(self):
         with self.conn:
             query = f'SELECT * FROM _parkings'
