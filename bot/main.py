@@ -68,9 +68,11 @@ def send_parking(chat_id, lat, lon):
         )
 
       markup = telebot.types.InlineKeyboardMarkup()
-      markup.add(
-        telebot.types.InlineKeyboardButton('Повідомити, якщо зайнято', callback_data='subscribe')
-      )
+      
+      if parking['is_camera']:
+        markup.add(
+          telebot.types.InlineKeyboardButton('Повідомити, якщо зайнято', callback_data='subscribe')
+        )
 
       bot.send_location(chat_id, parking['lat'], parking['lon'], reply_markup=markup)
   except Exception as e:
