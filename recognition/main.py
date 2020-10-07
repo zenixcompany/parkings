@@ -2,7 +2,7 @@ import subprocess
 
 
 if __name__ == '__main__':
-  subprocess.Popen(
+  proc1 = subprocess.Popen(
     [
       "python3", "recognition/camera_recognition.py",
       "--name", "Chornovola st 93",
@@ -19,7 +19,3 @@ if __name__ == '__main__':
   #   stdin=subprocess.DEVNULL,
   #   stdout=subprocess.DEVNULL
   # )
-
-  subprocess.Popen(
-    ["python3", "bot/main.py"]
-  )

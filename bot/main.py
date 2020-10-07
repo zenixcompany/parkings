@@ -45,7 +45,7 @@ def send_parking(chat_id, lat, lon):
     for parking in parkings:
       parking_num += 1
 
-      if (parking['is_camera']):
+      if (parking['camera_url']):
         photo = open(f"recognition/images/{parking['street']}.jpg", 'rb')
 
         bot.send_message(
@@ -69,7 +69,7 @@ def send_parking(chat_id, lat, lon):
 
       markup = telebot.types.InlineKeyboardMarkup()
       
-      if parking['is_camera']:
+      if parking['camera_url']:
         markup.add(
           telebot.types.InlineKeyboardButton('Повідомити, якщо зайнято', callback_data='subscribe')
         )
@@ -102,7 +102,7 @@ def callback_inline(call):
 
       bot.answer_callback_query(callback_query_id=call.id, show_alert=False, text="Готово")
   except Exception as e:
-    print(repr(e))
+    print(e)
 
 
 if __name__ == '__main__':
@@ -122,3 +122,9 @@ if __name__ == '__main__':
   else:
     bot.remove_webhook()
     bot.polling(none_stop=True)
+
+
+    # pyTelegramBotAPI
+    # opencage
+    # opencv-python
+    # PyYAML
